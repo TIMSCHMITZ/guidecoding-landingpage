@@ -1,0 +1,25 @@
+# Oeffentliches Repo: erst alles ausschliessen, dann gezielt freigeben.
+# Umgekehrt herum rutscht irgendwann etwas mit, das nicht raus soll.
+/*
+
+!/.gitignore
+!/.nojekyll
+!/index.html
+!/robots.txt
+!/README.md
+!/scrollcraft.js
+!/scrollcraft.css
+
+!/assets/
+!/fonts/
+!/demo/
+
+# Aus img nur die beiden Fassungen, die die Seite wirklich laedt.
+# Die Originale (-src) bleiben lokal, sie sind gross und werden nicht gebraucht.
+!/img/
+/img/*
+!/img/tim.webp
+!/img/some1.webp
+
+# Nicht von der Seite benutzt.
+/demo/ablaufbild.mmd

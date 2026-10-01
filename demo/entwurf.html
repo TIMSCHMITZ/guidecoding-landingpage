@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entwurf – Tischlerei Berger</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: Arial, sans-serif; background:#f5f5f3; color:#222; }
+  .balken { background:#c0392b; color:#fff; text-align:center; padding:8px; font-size:14px; overflow-wrap:anywhere; }
+  .wrapper { max-width:480px; margin:0 auto; padding:12px; }
+  .tabs { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
+  .tab { flex:1 1 auto; min-width:70px; padding:8px; text-align:center; background:#eee; border-radius:6px; cursor:pointer; font-size:14px; }
+  .tab.aktiv { background:#2c3e50; color:#fff; }
+  .karte { background:#fff; border-radius:8px; padding:14px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,.1); }
+  .schritt-label { font-size:12px; color:#888; margin-bottom:6px; }
+  h2 { font-size:18px; margin:0 0 10px; overflow-wrap:anywhere; }
+  label { display:block; font-size:14px; margin-top:10px; margin-bottom:4px; }
+  input, textarea, select { width:100%; padding:8px; font-size:16px; border:1px solid #ccc; border-radius:6px; }
+  button { font-size:16px; padding:10px 16px; border:none; border-radius:6px; background:#2c3e50; color:#fff; margin-top:14px; margin-right:8px; cursor:pointer; }
+  button.sek { background:#bbb; color:#222; }
+  .liste-eintrag { display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px; padding:10px; border-bottom:1px solid #eee; cursor:pointer; }
+  .stand { font-size:12px; padding:3px 8px; border-radius:10px; background:#eee; white-space:nowrap; }
+  .hinweis { font-size:13px; color:#c0392b; margin-top:8px; }
+  .view { display:none; }
+  .view.aktiv { display:block; }
+</style>
+</head>
+<body>
+<div class="balken">Entwurf zum Anklicken · speichert nichts · Beispieldaten</div>
+<div class="wrapper">
+
+  <div class="tabs">
+    <div class="tab aktiv" data-rolle="petra" onclick="rolleWechseln('petra')">Petra</div>
+    <div class="tab" data-rolle="du" onclick="rolleWechseln('du')">Du</div>
+    <div class="tab" data-rolle="jens" onclick="rolleWechseln('jens')">Jens</div>
+    <div class="tab" data-rolle="gesellen" onclick="rolleWechseln('gesellen')">Gesellen</div>
+  </div>
+
+  <div id="uebersicht" class="view aktiv">
+    <div class="karte">
+      <h2>Laufende Aufträge</h2>
+      <div id="auftragsliste"></div>
+    </div>
+  </div>
+
+  <div id="anfrage" class="view">
+    <div class="karte">
+      <div class="schritt-label">Schritt 1: Anfrage kommt an</div>
+      <h2>Neue Anfrage erfassen</h2>
+      <label>Kunde</label>
+      <input value="Beispielkunde Meier">
+      <label>Telefon</label>
+      <input value="0000 / 000000">
+      <label>Was möchte der Kunde?</label>
+      <textarea rows="3">Einbauschrank für Wohnzimmer</textarea>
+      <button class="sek" onclick="zeigeUebersicht()">Zurück</button>
+      <button onclick="weiterZu('uebersicht','Aufmaß fällt an')">In Excel eintragen</button>
+    </div>
+  </div>
+
+  <div id="aufmass" class="view">
+    <div class="karte">
+      <div class="schritt-label">Schritt 2: Aufmaß</div>
+      <h2>Aufmaß beim Kunden</h2>
+      <label>Maße</label>
+      <textarea rows="2">Breite 240 cm, Höhe 260 cm, Tiefe 60 cm</textarea>
+      <label>Skizze (Foto)</label>
+      <input type="file" disabled>
+      <label>Fotos von der Wand</label>
+      <input type="file" disabled>
+      <button class="sek" onclick="zeigeUebersicht()">Zurück</button>
+      <button onclick="weiterZu('angebot','Angebot in Arbeit')">Weiter zum Angebot</button>
+    </div>
+  </div>
+
+  <div id="angebot" class="view">
+    <div class="karte">
+      <div class="schritt-label">Schritt 3: Angebot rechnen</div>
+      <h2>Angebot</h2>
+      <label>Holz</label>
+      <input value="Eiche massiv">
+      <label>Oberfläche</label>
+      <input value="geölt">
+      <label>Preis</label>
+      <input value="4.200,00 €">
+      <button class="sek" onclick="zeigeUebersicht()">Zurück</button>
+      <button class="sek" onclick="hinweisZeigen(this,'Hier würde eine Nachricht an Jens gehen, ob das mit der Fertigung so hinkommt.')">Bei Jens nachfragen</button>
+      <button onclick="weiterZu('angebot_senden','Angebot in Arbeit')">Angebot ist fertig gerechnet</button>
+    </div>
+  </div>
+
+  <div id="angebot_senden" class="view">
+    <div class="karte">
+      <div class="schritt-label">Schritt 4: Angebot verschicken</div>
+      <h2>Angebot verschicken</h2>
+      <p>Angebot aus der Word-Vorlage für <strong>Beispielkunde Meier</strong> ist fertig.</p>
+      <button class="sek" onclick="zeigeUebersicht()">Zurück</button>
+      <button onclick="weiterZu('abschlag','Warte auf Zusage')">Per Mail verschickt</button>
+    </div>
+  </div>
+
+  <div id="abschlag" class="view">
+    <div class="karte">
+      <div class="schritt-label">Schritt 5 und 6: Zusage und Abschlagsrechnung</div>
+      <h2>Zusage und Abschlag</h2>
+      <label>Stand</label>
+      <select>
+        <option>Wartet auf Zusage</option>
+        <option selected>Kunde hat per Mail zugesagt</option>
+      </select>
+      <label>Abschlagsrechnung (30 %)</label>
+      <input value="1.260,00 €" disabled>
+      <p class="hinweis">Ohne bezahlten Abschlag wird nicht gefertigt.</p>
+      <button class="sek" onclick="zeigeUebersicht()">Zurück</button>
+      <button onclick="weiterZu('fertigung','In Fertigung')">Abschlag ist bezahlt</button>
+    </div>
+  </div>
+
+  <div id="fertigung" class="view">
+    <div class="karte">
+      <div class="schritt-label">Schritt 7 und 8: Material bestellen und Fertigung</div>
+      <h2>Fertigung</h2>
+      <label>Aufmaß-Zettel</label>
+      <textarea rows="2" disabled>Breite 240 cm, Höhe 260 cm, Tiefe 60 cm – Eiche massiv, geölt</textarea>
+      <p class="hinweis">Wenn der Zettel unleserlich oder unvollständig ist, rufst du bisher bei Rolf an.</p>
+      <label>Material bestellt bei</label>
+      <input value="Beispiel-Holzhandel">
+      <button class="sek" onclick="zeigeUebersicht()">Zurück</button>
+      <button onclick="weiterZu('montage','Montage')">Fertigung abgeschlossen</button>
+    </div>
+  </div>
+
+  <div id="montage" class="view">
+    <div class="karte">
+      <div class="schritt-label">Schritt 9: Montage</div>
+      <h2>Montage beim Kunden</h2>
+      <label>Stunden</label>
+      <input value="6,5">
+      <label>Nachtrag (wenn der Kunde vor Ort noch etwas möchte)</label>
+      <textarea rows="2" placeholder="z. B. Steckdose aussparen, Blende extra"></textarea>
+      <label>Foto zum Nachtrag</label>
+      <input type="file" disabled>
+      <p class="hinweis">Nachträge landen heute oft nicht bei Petra.</p>
+      <button class="sek" onclick="zeigeUebersicht()">Zurück</button>
+      <button onclick="weiterZu('abnahme','Abnahme ausstehend')">Montage fertig</button>
+    </div>
+  </div>
+
+  <div id="abnahme" class="view">
+    <div class="karte">
+      <div class="schritt-label">Schritt 10: Abnahme</div>
+      <h2>Abnahmeprotokoll</h2>
+      <p>Kunde <strong>Beispielkunde Meier</strong> bestätigt die Abnahme vor Ort.</p>
+      <label>Unterschrift Kunde</label>
+      <input value="(Unterschrift)" disabled>
+      <button class="sek" onclick="zeigeUebersicht()">Zurück</button>
+      <button onclick="weiterZu('schlussrechnung','Rechnung offen')">Abnahme unterschrieben</button>
+    </div>
+  </div>
+
+  <div id="schlussrechnung" class="view">
+    <div class="karte">
+      <div class="schritt-label">Schritt 11 und 12: Stundenzettel und Schlussrechnung</div>
+      <h2>Schlussrechnung</h2>
+      <label>Stunden laut Stundenzettel</label>
+      <input value="6,5" disabled>
+      <label>Nachtrag</label>
+      <input value="Steckdose aussparen, Blende extra" disabled>
+      <label>Foto zum Nachtrag</label>
+      <input type="file" disabled>
+      <label>Rechnungsbetrag</label>
+      <input value="3.150,00 €" disabled>
+      <button class="sek" onclick="zeigeUebersicht()">Zurück</button>
+      <button onclick="weiterZu('uebersicht','Erledigt')">Rechnung in Lexware erstellt</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  var auftraege = [
+    {kunde:'Beispielkunde Meier', stand:'Aufmaß fällt an', view:'aufmass'},
+    {kunde:'Beispielkunde Schulz', stand:'In Fertigung', view:'fertigung'},
+    {kunde:'Beispielkunde Voss', stand:'Montage', view:'montage'}
+  ];
+
+  function rolleWechseln(rolle){
+    document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('aktiv'); });
+    document.querySelector('[data-rolle="'+rolle+'"]').classList.add('aktiv');
+    zeigeUebersicht();
+  }
+
+  function zeigeAnsicht(id){
+    document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('aktiv'); });
+    document.getElementById(id).classList.add('aktiv');
+  }
+
+  function zeigeUebersicht(){
+    zeigeAnsicht('uebersicht');
+    renderListe();
+  }
+
+  function renderListe(){
+    var el = document.getElementById('auftragsliste');
+    el.innerHTML = '';
+    auftraege.forEach(function(a){
+      var div = document.createElement('div');
+      div.className = 'liste-eintrag';
+      div.onclick = function(){ zeigeAnsicht(a.view); };
+      div.innerHTML = '<span>'+a.kunde+'</span><span class="stand">'+a.stand+'</span>';
+      el.appendChild(div);
+    });
+  }
+
+  function weiterZu(zielView, neuerStand){
+    auftraege[0].stand = neuerStand;
+    auftraege[0].view = zielView;
+    zeigeAnsicht(zielView);
+  }
+
+  renderListe();
+
+  function hinweisZeigen(btn, text){
+    var vorhandene = btn.parentNode.querySelector('.inline-hinweis');
+    if (vorhandene) { vorhandene.remove(); return; }
+    var p = document.createElement('p');
+    p.className = 'hinweis inline-hinweis';
+    p.textContent = text;
+    btn.parentNode.insertBefore(p, btn.nextSibling);
+  }
+</script>
+</body>
+</html>
