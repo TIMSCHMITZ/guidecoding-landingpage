@@ -193,6 +193,13 @@
   .lede { margin-top: 1.1rem; color: var(--sc-ink-soft); max-width: 40ch; }
   .lede--wide { max-width: 52ch; }
 
+  /* Die Engine deckt das Poster nach 2,5 Sekunden per Zeitgeber auf, auch wenn
+     der Clip noch nicht da ist. Lokal faellt das nie auf, ueber eine echte
+     Leitung schon: dann steht die Buehne leer. Solange ein Bein kein echtes
+     Bild hat, bleibt sein Poster oben. */
+  .sc-world__seg.sc-wartet .sc-world__poster { opacity: 1; }
+  .sc-world__seg.sc-wartet > video { opacity: 0; }
+
   /* ---- Der Beleg. Die Signatur. ----------------------------------- */
   .belt {
     position: fixed; z-index: 35;
@@ -640,11 +647,34 @@
     return [x, y];
   }
 
+  /* Poster oben halten, bis das Bein wirklich ein Bild decodiert hat. */
+  var videos = segs.map(function (s) { return s.querySelector('video'); });
+  function posterHalten() {
+    var alleBereit = true;
+    for (var i = 0; i < segs.length; i++) {
+      var v = videos[i];
+      var bereit = !!v && v.readyState >= 2;
+      if (!bereit) alleBereit = false;
+      segs[i].classList.toggle('sc-wartet', !bereit);
+    }
+    return alleBereit;
+  }
+  videos.forEach(function (v) {
+    if (!v) return;
+    ['loadeddata', 'canplay', 'seeked'].forEach(function (ev) {
+      v.addEventListener(ev, posterHalten);
+    });
+  });
+  var posterWache = setInterval(function () {
+    if (posterHalten()) clearInterval(posterWache);
+  }, 250);
+  setTimeout(function () { clearInterval(posterWache); }, 120000);
+
   var ticking = false;
   function onScroll() {
     if (ticking) return;
     ticking = true;
-    requestAnimationFrame(function () { place(); gateFocus(); ticking = false; });
+    requestAnimationFrame(function () { place(); gateFocus(); posterHalten(); ticking = false; });
   }
 
   /* ---- Der Spacer wird einmal gemessen. Misst er 0, fliegt nichts. -- */
