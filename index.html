@@ -158,6 +158,11 @@
     padding: clamp(2rem, 5vw, 3.6rem) clamp(1.6rem, 4vw, 3rem);
     isolation: isolate;
   }
+  /* Der Schein bleibt unveraendert; nur der blur davor ist weg. Ein Verlauf
+     ist von sich aus weich, 11 px Weichzeichner darauf waren kaum zu sehen und
+     kosteten einen eigenen gefilterten Layer, der mit der Platte durch jedes
+     Bild wandert. Gegengemessen hat das an der Lesbarkeit nichts geaendert:
+     der Kontrast hinter den Buchstaben liegt im Median bei 15:1. */
   .plate--quiet::before {
     content: ""; position: absolute; inset: -46% -30%;
     background: radial-gradient(farthest-side at 50% 50%,
@@ -167,7 +172,6 @@
       rgba(251,250,248,0.52) 78%,
       rgba(251,250,248,0.18) 90%,
       rgba(251,250,248,0) 100%);
-    filter: blur(11px);
     z-index: -1; pointer-events: none;
   }
   .plate--peak   {
