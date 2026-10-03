@@ -34,7 +34,13 @@
     --sc-font-display: "Montserrat", system-ui, sans-serif;
     --sc-font-text:    "Source Sans 3", system-ui, sans-serif;
 
-    --paper:      rgba(251, 250, 248, 0.93);
+    /* 0.965 statt 0.93: die drei Prozent mehr Deckung ersetzen den
+       backdrop-filter, der vorher darunter lag. Ein Blur hinter einer zu 93 %
+       deckenden Flaeche ist kaum zu sehen, zwingt den Compositor aber, in
+       JEDEM Bild das Video darunter zu lesen, weichzuzeichnen und zu mischen
+       -- und die Platten bewegt die Engine in jedem Bild per transform. Im
+       Vergleich nebeneinander ist kein Unterschied auszumachen. */
+    --paper:      rgba(251, 250, 248, 0.965);
     --paper-edge: rgba(21, 34, 58, 0.10);
     --gutter:     clamp(1.25rem, 4vw, 4.5rem);
     /* Die Route braucht eine eigene Spur, sonst laeuft ihr Etikett
@@ -79,7 +85,6 @@
     background: var(--paper);
     padding: 0.5rem 0.85rem;
     border-radius: 2px;
-    backdrop-filter: blur(6px);
   }
   .mark__dot {
     width: 7px; height: 7px; border-radius: 50%;
@@ -94,7 +99,6 @@
     color: var(--sc-ink-soft);
     background: var(--paper);
     padding: 0.32rem 0.6rem; border-radius: 2px;
-    backdrop-filter: blur(6px);
   }
 
   /* ---- Die Route. Navigation ist hier eine Karte. ------------------ */
@@ -136,7 +140,6 @@
     position: absolute;
     max-width: var(--plate-max);
     background: var(--paper);
-    backdrop-filter: blur(6px) saturate(1.06);
     border-radius: 3px;
     padding: clamp(1.4rem, 2.6vw, 2.4rem);
     box-shadow: 0 1px 0 var(--paper-edge), 0 18px 46px -28px rgba(21,34,58,0.5);
@@ -244,7 +247,6 @@
   .plan__note {
     margin-top: 0.7rem; font-size: 0.78rem; color: var(--sc-ink-soft);
     background: var(--paper); padding: 0.4rem 0.6rem; border-radius: 2px;
-    backdrop-filter: blur(6px);
   }
 
   /* ---- Der Schluss ------------------------------------------------ */
@@ -590,21 +592,32 @@
     var w = belt.getBoundingClientRect().width || 110;
     var frei = ausweichen(x, y, w);
     x = frei[0]; y = frei[1];
-    belt.style.transform =
-      'translate3d(' + (x - w / 2) + 'px,' + (y - w * 0.62) + 'px,0)' +
-      ' rotate(' + r.toFixed(2) + 'deg)' +
-      ' scale(' + (s * (1 - open * 0.34)).toFixed(3) + ')';
-    belt.style.opacity = (1 - open).toFixed(3);
+    var tf = 'translate3d(' + (x - w / 2).toFixed(1) + 'px,' +
+             (y - w * 0.62).toFixed(1) + 'px,0)' +
+             ' rotate(' + r.toFixed(2) + 'deg)' +
+             ' scale(' + (s * (1 - open * 0.34)).toFixed(3) + ')';
+    if (tf !== letzteTf) { letzteTf = tf; belt.style.transform = tf; }
+    var op = (1 - open).toFixed(3);
+    if (op !== letzteOp) { letzteOp = op; belt.style.opacity = op; }
 
     var wantOpen = open > 0.55 && i <= PEAK + 0;
-    plan.classList.toggle('is-open', wantOpen);
-    plan.setAttribute('aria-hidden', String(!wantOpen));
+    /* Nur schreiben, wenn sich wirklich etwas aendert. Eine Klasse mit dem
+       Wert zu setzen, den das Element schon traegt, invalidiert den Teilbaum
+       trotzdem -- und ausweichen() misst im naechsten Bild wieder, was den
+       Reflow dann erzwingt. */
+    if (wantOpen !== planOffen) {
+      planOffen = wantOpen;
+      plan.classList.toggle('is-open', wantOpen);
+      plan.setAttribute('aria-hidden', String(!wantOpen));
+    }
   }
 
   /* Die Engine setzt pointer-events, aber nicht die Tastatur-Erreichbarkeit.
      Ein unsichtbarer Schalter darf nicht im Tabulator stehen, sonst springt der
      Fokus ins Nichts. Das gehoert in die Seite, nicht in die Engine. */
   var copies = Array.prototype.slice.call(root.querySelectorAll('[data-sc-copy]'));
+  var planOffen = plan.classList.contains('is-open');
+  var letzteTf = '', letzteOp = '';
   function gateFocus() {
     for (var i = 0; i < copies.length; i++) {
       var el = copies[i];
@@ -649,13 +662,19 @@
 
   /* Poster oben halten, bis das Bein wirklich ein Bild decodiert hat. */
   var videos = segs.map(function (s) { return s.querySelector('video'); });
+  var wartet = segs.map(function () { return null; });
   function posterHalten() {
     var alleBereit = true;
     for (var i = 0; i < segs.length; i++) {
       var v = videos[i];
       var bereit = !!v && v.readyState >= 2;
       if (!bereit) alleBereit = false;
-      segs[i].classList.toggle('sc-wartet', !bereit);
+      /* Sieben Klassenschreibungen in jedem Bild, auch wenn sich nichts
+         geaendert hat, waren sieben Style-Invalidierungen umsonst. */
+      if (wartet[i] !== !bereit) {
+        wartet[i] = !bereit;
+        segs[i].classList.toggle('sc-wartet', !bereit);
+      }
     }
     return alleBereit;
   }

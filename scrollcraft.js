@@ -139,6 +139,27 @@
 (function (global) {
   'use strict';
 
+  /* ------------------------------------------------------------------------
+     ABWEICHUNG VON DER SKILL-ENGINE (3. Oktober 2026)
+
+     Die Engine schrieb den Fortschritt in jedem Bild als CSS-Variable: --sc-p
+     auf jeden Akt, --sc-seg und --sc-segp zusaetzlich auf <html>. Weil Custom
+     Properties erben, invalidiert jede dieser Schreibungen den gesamten
+     Teilbaum des Elements, bei <html> also das ganze Dokument. Auf einem
+     iPhone 17 Pro Max laeuft requestAnimationFrame mit 120 Hz: 8,3 ms pro
+     Bild, und ein Teil davon ging fuer Style-Recalc drauf, den niemand
+     brauchte. Gemessen (Chrome, iPhone-Viewport, 6 s Scrollen, Median aus
+     drei Laeufen): Startseite 110 ms Style-Recalc, Erbschaftsseite 538 ms.
+     Ohne diese Schreibungen 12,5 ms und 52 ms, also rund 90 Prozent weniger.
+
+     Geschrieben wird jetzt nur noch auf Zuruf: `data-sc-expose` am Akt oder am
+     Weltflug, oder mount(root, { expose: true }) fuer die ganze Seite. Der
+     Segmentwechsel (--sc-seg) geht weiterhin an <html>, aber nur beim Wechsel
+     selbst, nicht in jedem Bild.
+
+     Wer die Engine aus dem Skill neu kopiert, holt sich das Ruckeln zurueck.
+     ------------------------------------------------------------------------ */
+
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var fineMQ = matchMedia('(hover: hover) and (pointer: fine)');
   var smallMQ = matchMedia('(max-width: 860px)');
@@ -300,6 +321,9 @@
                (opts.lerp > 0 ? clamp(opts.lerp, 0.02, 1) : 0) ||
                0.18;
 
+    // Fortschritt als CSS-Variable nur, wenn eine Seite sie wirklich liest.
+    var EXPOSE = opts.expose === true;
+
     // Every scrub clip on the page lives here, whatever drives it. tick() walks
     // this one list, so an act clip and a worldflight leg get the same playhead.
     function makeClip(v, host) {
@@ -318,6 +342,7 @@
     // ---- collect acts -----------------------------------------------------
     Array.prototype.forEach.call(root.querySelectorAll('[data-sc-act]'), function (el) {
       var device = el.getAttribute('data-sc-act') || 'flow';
+      var zeigtP = EXPOSE || el.hasAttribute('data-sc-expose');
       var pinned = device === 'scrub' || device === 'pin' || device === 'pan';
       var act = {
         el: el,
@@ -326,6 +351,7 @@
         span: parseFloat(el.getAttribute('data-sc-span')) || (pinned ? 1.5 : 0),
         dwell: parseFloat(el.getAttribute('data-sc-dwell')) || 0,
         clipTravel: pinned && el.getAttribute('data-sc-clip-map') === 'travel',
+        zeigtP: zeigtP,
         p: 0, raw: 0, top: 0, height: 0, live: false,
         cues: [], parallax: [], reveals: [], counts: [],
         video: null, seq: null, rail: null
@@ -421,7 +447,9 @@
         stage: el.querySelector('[data-sc-world]') || el.querySelector('.sc-world'),
         copyLayer: el.querySelector('[data-sc-world-copy]') || el.querySelector('.sc-world__copy'),
         spacer: el.querySelector('[data-sc-spacer]') || el.querySelector('.sc-world__spacer'),
-        seam: 0, segs: [], copies: [], total: 0, top: 0, index: -1, checked: false
+        seam: 0, segs: [], copies: [], total: 0, top: 0, index: -1, checked: false,
+        letztesK: -1,
+        zeigtP: EXPOSE || el.hasAttribute('data-sc-expose')
       };
       var seam = parseFloat(el.getAttribute('data-sc-seam'));
       // A seam wider than the shortest leg would have three clips dissolving at
@@ -679,6 +707,24 @@
         .catch(function () { V.loading = false; });
     }
 
+    // Der Gegenpart zu loadClip. Die Engine lud bisher jede Etappe einmal und
+    // gab sie nie wieder her: am Ende der Erbschaftsseite hingen sechs
+    // H.264-Dekoder gleichzeitig am Geraet, obwohl immer nur einer im Bild ist.
+    // Auf einem iPhone ist die Zahl gleichzeitiger Hardware-Dekoder begrenzt;
+    // darueber faellt Safari auf Software zurueck, und das ist das Ruckeln.
+    // Gemessen am Geraet am 3.10.2026: "6 Clips: 6 geladen, 6 bereit, 1 im Bild".
+    function unloadClip(V) {
+      if (!V || (!V.ready && !V.loading)) return;
+      var alt = V.el.src;
+      V.el.removeAttribute('src');
+      try { V.el.load(); } catch (e) {}      // gibt den Dekoder frei
+      if (alt && alt.indexOf('blob:') === 0) { try { URL.revokeObjectURL(alt); } catch (e) {} }
+      V.ready = false; V.loading = false; V.painted = false;
+      V.primed = false; V.priming = false; V.cur = 0; V.stuckAt = 0;
+      V.host.classList.remove('sc-has-clip');
+      V.el.classList.remove('sc-has-clip');
+    }
+
     // ---- image sequence ---------------------------------------------------
     function loadSeq(a) {
       var S = a.seq;
@@ -735,7 +781,13 @@
         // Fetch a leg only while it is within reach. Loading the whole flight up
         // front is tens of megabytes before the first frame paints; loading it
         // on arrival means arriving at a poster.
-        if (s.clip && t > s.c0 - 1.6 && t < s.c1 + 1.6) loadClip(s.clip);
+        // Laden in Reichweite, freigeben weit ausserhalb. Die zwei Schwellen
+        // sind verschieden, sonst laedt und entlaedt dieselbe Etappe im
+        // Wechsel, sobald jemand genau auf der Grenze steht.
+        if (s.clip) {
+          if (t > s.c0 - 1.6 && t < s.c1 + 1.6) loadClip(s.clip);
+          else if (t < s.c0 - 3.2 || t > s.c1 + 3.2) unloadClip(s.clip);
+        }
 
         // Opacity. The incoming leg fades UP over the outgoing one, which holds
         // at full strength underneath until it is completely covered. Fading
@@ -768,6 +820,30 @@
         }
       }
 
+      // Abstandsschwellen allein reichen nicht: sie sind in Fensterhoehen
+      // gerechnet, die Etappen aber verschieden breit. Bei schmalen Etappen
+      // passen sechs von sieben ins Fenster, und es haengen wieder sechs
+      // Dekoder am Geraet. Also zusaetzlich eine harte Obergrenze: die
+      // laufende Etappe, die davor und die danach. Was weiter weg ist und
+      // trotzdem noch geladen, faellt raus -- das entfernteste zuerst.
+      // Nur beim Etappenwechsel pruefen. In jedem Bild ein Array zu bauen und
+      // zu sortieren kostet mehr, als es spart: die Lage aendert sich erst,
+      // wenn eine neue Etappe laeuft.
+      var belegt = (k === W.letztesK) ? null : [];
+      if (belegt) for (i = 0; i < W.segs.length; i++) {
+        var sg = W.segs[i];
+        if (sg.clip && (sg.clip.ready || sg.clip.loading)) {
+          belegt.push({ clip: sg.clip, fern: Math.abs(i - k) });
+        }
+      }
+      if (belegt) W.letztesK = k;
+      if (belegt && belegt.length > 3) {
+        belegt.sort(function (a, b) { return b.fern - a.fern; });
+        for (i = 0; i < belegt.length - 3; i++) {
+          if (belegt[i].fern >= 2) unloadClip(belegt[i].clip);
+        }
+      }
+
       for (var c = 0; c < W.copies.length; c++) {
         var q = W.copies[c];
         var win = Math.max(q.to - q.from, 0.001);
@@ -787,9 +863,14 @@
         // over a moving world and starts reading as a second page scrolling at a
         // different speed, which is the exact cheapness this mode replaces.
         var wp = clamp01((pr - q.from) / win);
-        q.el.style.opacity = vis.toFixed(3);
-        q.el.style.transform = reduce ? 'none'
+        // Ausserhalb ihres Fensters aendern sich beide Werte nicht mehr, und
+        // das sind fast immer alle ausser einer. Sie trotzdem in jedem Bild zu
+        // schreiben hat je Platte einen Style-Recalc ausgeloest.
+        var vs = vis.toFixed(3);
+        if (vs !== q.lastOp) { q.lastOp = vs; q.el.style.opacity = vs; }
+        var tf = reduce ? 'none'
           : 'translate3d(0,' + ((0.5 - wp) * 4).toFixed(2) + 'vh,0)';
+        if (tf !== q.lastTf) { q.lastTf = tf; q.el.style.transform = tf; }
         var on = vis > 0.5;
         if (on !== (q.state === 1)) { q.state = on ? 1 : 0; q.el.style.pointerEvents = on ? 'auto' : 'none'; }
       }
@@ -798,12 +879,18 @@
       // set of chapter dots are all the same two numbers, and a runtime that
       // ships one of them ships it to every page that uses this mode.
       var cur = W.segs[k];
-      W.el.style.setProperty('--sc-seg', String(k));
-      W.el.style.setProperty('--sc-segp', cur.local.toFixed(4));
-      docEl.style.setProperty('--sc-seg', String(k));
-      docEl.style.setProperty('--sc-segp', cur.local.toFixed(4));
+      // --sc-segp aendert sich in jedem Bild und traf vorher auch <html>, also
+      // das ganze Dokument. Es geht nur noch raus, wenn die Seite es anfordert.
+      if (W.zeigtP) {
+        W.el.style.setProperty('--sc-seg', String(k));
+        W.el.style.setProperty('--sc-segp', cur.local.toFixed(4));
+        docEl.style.setProperty('--sc-segp', cur.local.toFixed(4));
+      }
       if (k !== W.index) {
         W.index = k;
+        // Die Etappennummer bleibt fuer jede Seite lesbar: sie wechselt
+        // sechsmal, nicht hundertzwanzigmal in der Sekunde.
+        docEl.style.setProperty('--sc-seg', String(k));
         try {
           W.el.dispatchEvent(new CustomEvent('sc:waypoint', {
             bubbles: true,
@@ -851,7 +938,9 @@
           a.vp = a.dwell ? dwell(vraw, a.dwell) : vraw;
         }
         a.live = (y > a.top - vh * 1.25) && (y < a.top + a.height + vh * 1.25);
-        a.el.style.setProperty('--sc-p', a.p.toFixed(4));
+        // Nur auf Zuruf. Siehe den Hinweis im Kopf dieser Datei: eine Custom
+        // Property in jedem Bild zu schreiben invalidiert den ganzen Teilbaum.
+        if (a.zeigtP) a.el.style.setProperty('--sc-p', a.p.toFixed(4));
 
         // Fetch earlier than we drive. A 1080p clip is megabytes, and a reader
         // who scrolls briskly will otherwise arrive at a stage that is still
@@ -990,7 +1079,13 @@
     // Split from read() on purpose: seeking is asynchronous and rate-limited by
     // the decoder, while read() must stay cheap enough to run on every scroll
     // event. The lerp here is also what turns a jittery wheel into a glide.
+    var scrubAn = true;
+
     function tick() {
+      // Diagnose-Schalter: liegt er auf aus, wird kein einziger Sprung mehr
+      // angefordert. Der Unterschied in der Bildrate ist dann genau der Anteil,
+      // den das Video am Ruckeln hat. Siehe diag.js.
+      if (!scrubAn) { requestAnimationFrame(tick); return; }
       // Deadband. A phone decoder cannot service a seek every frame, so asking
       // for one costs more than it shows; 20ms of clip is under a frame of
       // footage anyway.
@@ -1198,7 +1293,11 @@
     requestAnimationFrame(tick);
     document.documentElement.classList.add('sc-ready');
 
-    var api = { layout: layout, read: read, acts: acts, worlds: worlds, clips: playheads, lerp: LERP };
+    var api = {
+      layout: layout, read: read, acts: acts, worlds: worlds, clips: playheads, lerp: LERP,
+      // nur fuer die Geraetediagnose, nicht fuer die Seite
+      scrub: function (an) { if (an !== undefined) scrubAn = !!an; return scrubAn; }
+    };
     global.ScrollCraft.instances.push(api);
     return api;
   }
