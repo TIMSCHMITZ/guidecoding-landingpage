@@ -459,6 +459,8 @@
         copyLayer: el.querySelector('[data-sc-world-copy]') || el.querySelector('.sc-world__copy'),
         spacer: el.querySelector('[data-sc-spacer]') || el.querySelector('.sc-world__spacer'),
         seam: 0, segs: [], copies: [], total: 0, top: 0, index: -1, checked: false,
+        // Die Einheit, in der die Spur wirklich steht. layout() misst sie.
+        vh: 0,
         letztesK: -1,
         zeigtP: EXPOSE || el.hasAttribute('data-sc-expose')
       };
@@ -599,10 +601,26 @@
       // the sum of the leg weights plus one viewport: without that extra screen
       // the track runs out at the moment the last leg reaches p=1, so the last
       // leg's final second is a place the reader can never actually stop.
-      // Set in pixels, not vh, because .sc-world is sized in svh on phones and a
-      // vh/svh mismatch would put the track and the stage on different rulers.
+      //
+      // Die Spur steht in CSS-vh, nicht in Pixeln aus innerHeight (15.10.2026).
+      // Auf dem Telefon aendert die Adressleiste innerHeight staendig, 100vh
+      // aber nicht. Vorher wurde die Spur einmal in Pixeln eingefroren,
+      // waehrend readWorld weiter durch das wandernde innerHeight teilte -- und
+      // weil in der Spurlaenge der Faktor (total + 1) steckt, wird aus zehn
+      // Prozent Hoehenunterschied fast eine ganze Bildschirmhoehe, in der
+      // Scrollen nichts mehr bewegt. Auf der Nagel-Seite als 931 px gemessen
+      // und dort am 9.10.2026 so behoben.
+      //
+      // Der frueher hier stehende Einwand -- Pixel, weil die Buehne in svh
+      // steht -- gilt fuer diese Betriebsart nicht: .sc-world ist
+      // position:fixed mit inset:0 und damit so hoch wie der grosse Viewport,
+      // also wie 100vh. In svh steht nur .sc-stage, die Buehne der Akte, und
+      // die haengt an keiner Spur. W.vh haelt fest, wie gross eine Einheit
+      // wirklich ausgefallen ist; readWorld rechnet mit derselben Zahl.
       worlds.forEach(function (W) {
-        if (W.spacer) W.spacer.style.height = Math.round((W.total + 1) * vh) + 'px';
+        if (!W.spacer) return;
+        W.spacer.style.height = ((W.total + 1) * 100) + 'vh';
+        W.vh = W.spacer.getBoundingClientRect().height / (W.total + 1);
       });
       acts.forEach(function (a) {
         var r = a.el.getBoundingClientRect();
@@ -821,7 +839,10 @@
     function readWorld(W) {
       if (!W.segs.length) return;
       var S = W.seam;
-      var t = clamp((y - W.top) / Math.max(vh, 1), 0, W.total);
+      // Durch W.vh teilen, nicht durch vh: die Spur ist in CSS-vh gesetzt, und
+      // eine Adressleiste, die innerHeight verschiebt, darf die Zuordnung von
+      // Scrollstelle zu Etappe nicht verschieben. Siehe layout().
+      var t = clamp((y - W.top) / Math.max(W.vh || vh, 1), 0, W.total);
       var pr = t / W.total;
       var i, s;
 

@@ -503,6 +503,24 @@
   var weights = segs.map(function (s) { return parseFloat(s.getAttribute('data-sc-w')) || 1.3; });
   var total   = weights.reduce(function (a, b) { return a + b; }, 0);
 
+  /* Die Einheit, in der die Scrollspur steht -- nicht window.innerHeight.
+     Der Motor setzt die Spur in CSS-vh und misst nach, wie gross eine Einheit
+     wirklich ausgefallen ist (W.vh, siehe layout() in scrollcraft.js). Auf dem
+     Telefon wandert innerHeight mit der Adressleiste, 100vh nicht. Wer hier
+     weiter durch innerHeight teilte, saesse auf einem anderen Lineal als der
+     Motor: der Beleg flaege zu einer anderen Etappe als die, die zu sehen ist,
+     und ein Klick auf die Route landete daneben.
+     Nur eine Eigenschaft lesen, kein getBoundingClientRect -- das laeuft in
+     jedem Bild. */
+  var welt = null;
+  function spurVh() {
+    if (!welt) {
+      welt = window.ScrollCraft && ScrollCraft.instances[0] &&
+             ScrollCraft.instances[0].worlds[0];
+    }
+    return (welt && welt.vh) || window.innerHeight;
+  }
+
   /* Startpunkt jeder Etappe auf der Strecke, in Viewport-Hoehen. */
   var starts = [];
   weights.reduce(function (acc, w, i) { starts[i] = acc; return acc + w; }, 0);
@@ -519,7 +537,7 @@
         '<span class="route__label">' + label + '</span>' +
       '</button>';
     li.querySelector('button').addEventListener('click', function () {
-      var y = (starts[i] + weights[i] * 0.25) * window.innerHeight;
+      var y = (starts[i] + weights[i] * 0.25) * spurVh();
       window.scrollTo({ top: y, behavior: 'smooth' });
     });
     routeEl.appendChild(li);
@@ -567,8 +585,13 @@
   function ease(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
 
   function place() {
-    var vh = window.innerHeight;
-    var t  = window.scrollY / vh;             /* Position auf der Strecke, in vh */
+    /* Zwei verschiedene Masse, bewusst getrennt gehalten:
+       spur  -- wie lang eine Etappe auf der Scrollspur ist (CSS-vh, fest)
+       vh    -- wie hoch der Bildschirm gerade wirklich ist (wandert mit der
+                Adressleiste). Der Beleg wird damit auf dem Schirm platziert. */
+    var spur = spurVh();
+    var vh   = window.innerHeight;
+    var t    = window.scrollY / spur;         /* Position auf der Strecke */
 
     /* Etappe und lokaler Fortschritt */
     var i = 0;
@@ -724,7 +747,7 @@
   /* Kontrolle: die Strecke muss (Summe + 1) Bildschirme hoch sein. */
   window.__scCheck = function () {
     return {
-      erwartet: Math.round((total + 1) * window.innerHeight),
+      erwartet: Math.round((total + 1) * spurVh()),
       gemessen: document.documentElement.scrollHeight,
       spacer:   spacer.style.height
     };
