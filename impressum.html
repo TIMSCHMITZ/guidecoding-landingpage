@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Impressum · Guide Coding</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Impressum und Anbieterkennzeichnung der Guide-Coding-Seite.">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=&apos;http://www.w3.org/2000/svg&apos; viewBox=&apos;0 0 32 32&apos;%3E%3Crect width=&apos;32&apos; height=&apos;32&apos; fill=&apos;%23FBFAF8&apos;/%3E%3Ccircle cx=&apos;16&apos; cy=&apos;16&apos; r=&apos;7&apos; fill=&apos;none&apos; stroke=&apos;%23B95A40&apos; stroke-width=&apos;3&apos;/%3E%3C/svg%3E">
+<style>
+  /* ===================================================================
+     Guide Coding · Impressum
+
+     Eine Pflichtseite, kein Auftritt. Sie laedt bewusst weder die
+     Scroll-Engine noch ein einziges Bild: wer hier landet, sucht eine
+     Anschrift und soll sie sofort haben, auch auf einer schlechten
+     Leitung. Dieselben Marken-Token wie die Landingpage, damit sie
+     erkennbar zur Seite gehoert, aber die Form eines Papiers -- das ist
+     ohnehin die Haltung der Marke.
+
+     Die Angaben zu Schmitz Systemarchitektur sind wortgleich mit dem
+     Impressum von schmitz-systemarchitektur.de (abgerufen am 15.10.2026).
+     Some1 IT ist als zweiter Anbieter ergaenzt (Entscheidung Tim,
+     15.10.2026), weil Guide Coding die gemeinsame Marke beider Firmen ist.
+     Deren Angaben sind wortgleich aus some1-it.de/imprint.html uebernommen
+     (abgerufen am 15.10.2026).
+     =================================================================== */
+  @font-face {
+    font-family: "Montserrat"; src: url("fonts/Montserrat-latin.woff2") format("woff2");
+    font-weight: 400 800; font-display: swap; font-style: normal;
+  }
+  @font-face {
+    font-family: "Source Sans 3"; src: url("fonts/SourceSans3-latin.woff2") format("woff2");
+    font-weight: 300 700; font-display: swap; font-style: normal;
+  }
+
+  :root {
+    --sc-canvas:   #F2EFEA;
+    --sc-surface:  #FBFAF8;
+    --sc-ink:      #15223A;
+    --sc-ink-soft: #5C6474;
+    --sc-accent:   #B95A40;
+    --paper-edge:  rgba(21, 34, 58, 0.10);
+    --gutter:      clamp(1.25rem, 4vw, 4.5rem);
+    --sc-font-display: "Montserrat", system-ui, sans-serif;
+    --sc-font-text:    "Source Sans 3", system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--sc-canvas);
+    color: var(--sc-ink);
+    font-family: var(--sc-font-text);
+    font-size: 1rem; line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 44rem;
+    margin: 0 auto;
+    padding: clamp(1.5rem, 5vw, 4rem) var(--gutter) clamp(3rem, 8vw, 6rem);
+  }
+
+  /* Der Rueckweg steht oben, nicht unten: wer das Impressum aufschlaegt,
+     will meistens gleich wieder zurueck. */
+  .back {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-size: 0.82rem; letter-spacing: 0.06em; text-transform: uppercase;
+    font-family: var(--sc-font-display); font-weight: 600;
+    color: var(--sc-ink-soft); text-decoration: none;
+    margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+  }
+  .back:hover, .back:focus-visible { color: var(--sc-accent); }
+  .back .dot {
+    width: 0.5rem; height: 0.5rem; border-radius: 50%;
+    border: 2px solid var(--sc-accent); flex: none;
+  }
+
+  .sheet {
+    background: var(--sc-surface);
+    border: 1px solid var(--paper-edge);
+    border-radius: 3px;
+    padding: clamp(1.4rem, 5vw, 3rem);
+  }
+
+  h1 {
+    font-family: var(--sc-font-display); font-weight: 700;
+    font-size: clamp(1.6rem, 4.5vw, 2.3rem); line-height: 1.2;
+    letter-spacing: -0.015em;
+    margin: 0 0 0.35rem;
+  }
+  .sub {
+    color: var(--sc-ink-soft); font-size: 0.92rem;
+    margin: 0 0 clamp(1.6rem, 4vw, 2.4rem);
+  }
+
+  h2 {
+    font-family: var(--sc-font-display); font-weight: 600;
+    font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--sc-accent);
+    margin: 2rem 0 0.5rem;
+  }
+  h2:first-of-type { margin-top: 0; }
+
+  p { margin: 0 0 0.9rem; }
+  p:last-child { margin-bottom: 0; }
+  .adr { font-style: normal; }
+  .adr p { margin-bottom: 0; }
+
+  a { color: var(--sc-ink); text-decoration: underline; text-underline-offset: 2px; }
+  a:hover, a:focus-visible { color: var(--sc-accent); }
+
+  /* Die Haftungsabsaetze sind laenger und weniger wichtig als die
+     Pflichtangaben darueber. Etwas kleiner, damit die Anschrift die
+     Seite fuehrt. */
+  .legal p { font-size: 0.92rem; color: var(--sc-ink-soft); }
+
+  hr {
+    border: 0; border-top: 1px solid var(--paper-edge);
+    margin: 2.2rem 0;
+  }
+
+  /* Zwei Anbieter, zwei Bloecke. Die Nummer davor macht auf einen Blick
+     klar, dass es zwei sind -- sonst liest sich der zweite Name wie eine
+     Fortsetzung des ersten. */
+  .firma { margin-top: 2.4rem; }
+  .firma:first-of-type { margin-top: 0; }
+  .firma > h2:first-child { margin-top: 0; }
+  .firma__name {
+    font-family: var(--sc-font-display); font-weight: 700;
+    font-size: 1.05rem; letter-spacing: -0.01em;
+    margin: 0 0 0.8rem;
+  }
+
+  /* Eine Angabe, die noch fehlt. Sie steht hier bewusst auffaellig und
+     nicht als stiller Platzhalter: ein Impressum, dem eine Pflichtangabe
+     fehlt, darf nicht aus Versehen online gehen. */
+  .fehlt {
+    display: block;
+    border-left: 3px solid var(--sc-accent);
+    background: rgba(185, 90, 64, 0.07);
+    padding: 0.6rem 0.8rem;
+    margin: 0.6rem 0;
+    font-size: 0.88rem; color: var(--sc-ink);
+  }
+  .fehlt b { font-family: var(--sc-font-display); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .back, a { transition: color 160ms ease; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <a class="back" href="index.html"><span class="dot" aria-hidden="true"></span>Zurück zu Guide Coding</a>
+
+  <main class="sheet">
+    <h1>Impressum</h1>
+    <p class="sub">Angaben gemäß § 5 TMG</p>
+
+    <p>Guide Coding ist die gemeinsame Marke der beiden folgenden Anbieter.</p>
+
+    <section class="firma">
+      <h2>Anbieter 1</h2>
+      <p class="firma__name">Schmitz Systemarchitektur UG (haftungsbeschränkt)</p>
+      <address class="adr">
+        <p>Bismarckstraße 100</p>
+        <p>41061 Mönchengladbach</p>
+        <p>Deutschland</p>
+      </address>
+
+      <h2>Vertreten durch</h2>
+      <p>Tim Schmitz, Geschäftsführer</p>
+
+      <h2>Registereintrag</h2>
+      <p>
+        Registergericht: Amtsgericht Mönchengladbach<br>
+        Registernummer: HRB 24457
+      </p>
+
+      <h2>Kontakt</h2>
+      <p>
+        Telefon: <a href="tel:+491637271007">+49 163 727 1007</a><br>
+        E-Mail: <a href="mailto:info@schmitz-systemarchitektur.de">info@schmitz-systemarchitektur.de</a>
+      </p>
+    </section>
+
+    <section class="firma">
+      <h2>Anbieter 2</h2>
+      <p class="firma__name">Some1 IT GmbH</p>
+      <address class="adr">
+        <p>Lüderitzallee 40</p>
+        <p>47249 Duisburg</p>
+        <p>Deutschland</p>
+      </address>
+
+      <h2>Vertreten durch</h2>
+      <p>Christoph Orths und Marcus Maximilian Püschel, Geschäftsführer</p>
+
+      <h2>Registereintrag</h2>
+      <p>
+        Registergericht: Amtsgericht Duisburg<br>
+        Handelsregisternummer: HRB 39047
+      </p>
+
+      <h2>Umsatzsteuer-Identifikationsnummer</h2>
+      <p>DE454450397</p>
+
+      <h2>Kontakt</h2>
+      <p>
+        Telefon: <a href="tel:+491732550374">+49 173 2550374</a><br>
+        E-Mail: <a href="mailto:office@some1-it.de">office@some1-it.de</a>
+      </p>
+    </section>
+
+    <hr>
+
+    <h2>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
+    <address class="adr">
+      <p>Tim Schmitz</p>
+      <p>Bismarckstraße 100</p>
+      <p>41061 Mönchengladbach</p>
+    </address>
+
+    <hr>
+
+    <p><a href="datenschutz.html">Zur Datenschutzerklärung</a></p>
+
+    <div class="legal">
+      <h2>Haftungsausschluss</h2>
+      <p>
+        Die Inhalte dieser Website wurden mit größter Sorgfalt erstellt. Für die
+        Richtigkeit, Vollständigkeit und Aktualität der Inhalte wird jedoch keine
+        Gewähr übernommen. Als Diensteanbieter sind wir gemäß § 7 Abs. 1 TMG für
+        eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen
+        verantwortlich.
+      </p>
+      <p>
+        Diese Website enthält gegebenenfalls Links zu externen Websites Dritter,
+        auf deren Inhalte wir keinen Einfluss haben. Für die Inhalte der
+        verlinkten Seiten ist stets der jeweilige Anbieter verantwortlich.
+      </p>
+    </div>
+  </main>
+
+</div>
+
+</body>
+</html>

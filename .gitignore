@@ -5,6 +5,8 @@
 !/.gitignore
 !/.nojekyll
 !/index.html
+!/impressum.html
+!/datenschutz.html
 !/robots.txt
 !/README.md
 !/scrollcraft.js

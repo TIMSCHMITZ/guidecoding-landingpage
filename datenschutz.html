@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Datenschutz · Guide Coding</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Datenschutzerklärung der Guide-Coding-Seite.">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=&apos;http://www.w3.org/2000/svg&apos; viewBox=&apos;0 0 32 32&apos;%3E%3Crect width=&apos;32&apos; height=&apos;32&apos; fill=&apos;%23FBFAF8&apos;/%3E%3Ccircle cx=&apos;16&apos; cy=&apos;16&apos; r=&apos;7&apos; fill=&apos;none&apos; stroke=&apos;%23B95A40&apos; stroke-width=&apos;3&apos;/%3E%3C/svg%3E">
+<style>
+  /* ===================================================================
+     Guide Coding · Datenschutz
+
+     Grundlage ist die Erklaerung von schmitz-systemarchitektur.de
+     (abgerufen am 15.10.2026). Uebernommen wurden Aufbau, Tonfall,
+     Verantwortlicher, Betroffenenrechte und Beschwerderecht -- wortgleich.
+
+     Auch die GitHub-Pages-Passage ist wortgleich uebernommen -- diese
+     Seite laeuft dort ebenso (bestaetigt Tim, 15.10.2026). Ergaenzt wurde
+     nur der Absatz zur Drittlandsuebermittlung, den das Original nicht
+     hat; die beiden darin genannten Grundlagen stehen so in GitHubs
+     eigener Datenschutzerklaerung.
+
+     NICHT uebernommen wurden die Abschnitte, die auf dieser Seite
+     schlicht nicht zutreffen: Calendly, der Chatbase-Chat, die
+     Instagram-Automation, und die Schriftnamen (dort Manrope und IBM Plex
+     Mono, hier Montserrat und Source Sans 3). Eine Erklaerung, die
+     Dienste nennt, die es auf der Seite nicht gibt, ist schlechter als
+     keine: sie ist nachweislich falsch.
+
+     Die Klarstellung unter Ziffer 1 -- zwei Anbieter im Impressum, aber
+     nur ein Verantwortlicher -- steht hier, weil beides sonst wie ein
+     Widerspruch aussieht. Die Zuordnung hat Tim am 15.10.2026 festgelegt.
+
+     Was hier steht, ist am 15.10.2026 am laufenden Stand gemessen worden
+     (Netzwerkmitschnitt ueber die ganze Seite): null fremde Hosts, keine
+     Cookies, keine Analyse, ein eingebetteter Entwurf gleicher Herkunft,
+     ein Eintrag im lokalen Speicher durch die Performance-Weiche.
+     =================================================================== */
+  @font-face {
+    font-family: "Montserrat"; src: url("fonts/Montserrat-latin.woff2") format("woff2");
+    font-weight: 400 800; font-display: swap; font-style: normal;
+  }
+  @font-face {
+    font-family: "Source Sans 3"; src: url("fonts/SourceSans3-latin.woff2") format("woff2");
+    font-weight: 300 700; font-display: swap; font-style: normal;
+  }
+
+  :root {
+    --sc-canvas:   #F2EFEA;
+    --sc-surface:  #FBFAF8;
+    --sc-ink:      #15223A;
+    --sc-ink-soft: #5C6474;
+    --sc-accent:   #B95A40;
+    --paper-edge:  rgba(21, 34, 58, 0.10);
+    --gutter:      clamp(1.25rem, 4vw, 4.5rem);
+    --sc-font-display: "Montserrat", system-ui, sans-serif;
+    --sc-font-text:    "Source Sans 3", system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--sc-canvas);
+    color: var(--sc-ink);
+    font-family: var(--sc-font-text);
+    font-size: 1rem; line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 44rem;
+    margin: 0 auto;
+    padding: clamp(1.5rem, 5vw, 4rem) var(--gutter) clamp(3rem, 8vw, 6rem);
+  }
+
+  .back {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-size: 0.82rem; letter-spacing: 0.06em; text-transform: uppercase;
+    font-family: var(--sc-font-display); font-weight: 600;
+    color: var(--sc-ink-soft); text-decoration: none;
+    margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+  }
+  .back:hover, .back:focus-visible { color: var(--sc-accent); }
+  .back .dot {
+    width: 0.5rem; height: 0.5rem; border-radius: 50%;
+    border: 2px solid var(--sc-accent); flex: none;
+  }
+
+  .sheet {
+    background: var(--sc-surface);
+    border: 1px solid var(--paper-edge);
+    border-radius: 3px;
+    padding: clamp(1.4rem, 5vw, 3rem);
+  }
+
+  h1 {
+    font-family: var(--sc-font-display); font-weight: 700;
+    font-size: clamp(1.6rem, 4.5vw, 2.3rem); line-height: 1.2;
+    letter-spacing: -0.015em;
+    margin: 0 0 0.35rem;
+  }
+  .sub { color: var(--sc-ink-soft); font-size: 0.92rem; margin: 0 0 2rem; }
+
+  h2 {
+    font-family: var(--sc-font-display); font-weight: 600;
+    font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--sc-accent);
+    margin: 2.2rem 0 0.5rem;
+  }
+
+  p { margin: 0 0 0.9rem; }
+  p:last-child { margin-bottom: 0; }
+  .adr { font-style: normal; }
+  .adr p { margin-bottom: 0; }
+
+  ul { margin: 0 0 0.9rem; padding-left: 1.1rem; }
+  li { margin-bottom: 0.25rem; }
+
+  a { color: var(--sc-ink); text-decoration: underline; text-underline-offset: 2px; }
+  a:hover, a:focus-visible { color: var(--sc-accent); }
+
+  hr { border: 0; border-top: 1px solid var(--paper-edge); margin: 2.2rem 0; }
+
+  .fehlt {
+    display: block;
+    border-left: 3px solid var(--sc-accent);
+    background: rgba(185, 90, 64, 0.07);
+    padding: 0.6rem 0.8rem;
+    margin: 0.6rem 0;
+    font-size: 0.88rem;
+  }
+  .fehlt b { font-family: var(--sc-font-display); }
+
+  .stand { margin-top: 2.4rem; font-size: 0.88rem; color: var(--sc-ink-soft); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .back, a { transition: color 160ms ease; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <a class="back" href="index.html"><span class="dot" aria-hidden="true"></span>Zurück zu Guide Coding</a>
+
+  <main class="sheet">
+    <h1>Datenschutz</h1>
+    <p class="sub">
+      Der Schutz Ihrer personenbezogenen Daten ist uns wichtig. Diese Erklärung
+      informiert Sie darüber, welche Daten beim Besuch dieser Website verarbeitet
+      werden, zu welchem Zweck und auf welcher Rechtsgrundlage.
+    </p>
+
+    <h2>1. Verantwortlicher</h2>
+    <p>Verantwortlich im Sinne der Datenschutz-Grundverordnung (DSGVO):</p>
+    <address class="adr">
+      <p>Schmitz Systemarchitektur UG (haftungsbeschränkt)</p>
+      <p>Bismarckstraße 100</p>
+      <p>41061 Mönchengladbach</p>
+      <p>Deutschland</p>
+    </address>
+    <p style="margin-top:0.8rem">
+      Telefon: <a href="tel:+491637271007">+49 163 727 1007</a><br>
+      E-Mail: <a href="mailto:info@schmitz-systemarchitektur.de">info@schmitz-systemarchitektur.de</a>
+    </p>
+    <p>
+      Im <a href="impressum.html">Impressum</a> sind zwei Anbieter genannt, weil Guide
+      Coding die gemeinsame Marke beider Firmen ist. Über Zwecke und Mittel der
+      Datenverarbeitung auf dieser Website entscheidet jedoch allein die Schmitz
+      Systemarchitektur UG (haftungsbeschränkt). Sie ist damit die einzige
+      Verantwortliche im Sinne der DSGVO; eine gemeinsame Verantwortlichkeit nach
+      Art. 26 DSGVO besteht nicht.
+    </p>
+
+    <h2>2. Hosting · GitHub Pages</h2>
+    <p>
+      Diese Website wird bei GitHub Pages gehostet, einem Dienst der GitHub, Inc.,
+      88 Colin P Kelly Jr St, San Francisco, CA 94107, USA. Beim Aufruf der Seite
+      werden technisch notwendige Daten in Server-Logfiles erfasst (IP-Adresse, Datum
+      und Uhrzeit des Zugriffs, übertragene Datenmenge, aufgerufene Seite,
+      Browser-Typ, Betriebssystem, Referrer-URL).
+    </p>
+    <p>
+      Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einer
+      sicheren und stabilen Auslieferung der Website). Die Daten werden von GitHub im
+      Rahmen der dortigen Datenschutzbestimmungen verarbeitet:
+      <a href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement"
+         target="_blank" rel="noopener">GitHub Privacy Statement</a>.
+    </p>
+    <p>
+      Dabei können Daten in die USA übermittelt und dort verarbeitet werden. GitHub ist
+      nach dem EU-U.S. Data Privacy Framework zertifiziert, für das die Europäische
+      Kommission mit Beschluss vom 10. Juli 2023 ein angemessenes Schutzniveau
+      festgestellt hat; ergänzend stützt GitHub solche Übermittlungen auf die
+      Standardvertragsklauseln der Europäischen Kommission (Durchführungsbeschluss
+      2021/914).
+    </p>
+
+    <h2>3. Schriftarten</h2>
+    <p>
+      Die verwendeten Schriftarten („Montserrat" und „Source Sans 3") werden vom
+      selben Server ausgeliefert, der auch diese Website hostet. Es findet
+      <strong>keine</strong> Verbindung zu Google-Servern oder anderen Drittanbietern
+      statt; Ihre IP-Adresse wird beim Laden der Schriftarten nicht an Dritte
+      übertragen.
+    </p>
+
+    <h2>4. Bilder, Videos und der eingebettete Entwurf</h2>
+    <p>
+      Die Bildwelt dieser Seite ist KI-generiert und wird als Video und als Standbild
+      ebenfalls vom eigenen Server ausgeliefert. Mitten auf der Seite ist ein
+      bedienbarer Beispielentwurf eingebettet. Er stammt vom selben Server, läuft mit
+      erfundenen Beispieldaten, speichert nichts und sendet nichts. Es werden dabei
+      keine Daten an Dritte übertragen.
+    </p>
+
+    <h2>5. Lokale Speicherung für die Darstellung</h2>
+    <p>
+      Diese Seite misst beim Scrollen, ob Ihr Gerät die bewegte Fassung flüssig
+      darstellen kann. Fällt die Messung negativ aus, zeigt die Seite stattdessen
+      Standbilder und lädt keine Videos mehr. Damit diese Entscheidung bei einem
+      späteren Besuch nicht erneut gemessen werden muss, wird sie unter dem Namen
+      <code>guidecoding-weiche-1</code> im lokalen Speicher Ihres Browsers abgelegt
+      (gespeichert wird allein das Ergebnis „leichte" oder „bewegte Fassung" nebst
+      Begründung und Zeitpunkt, für 14 Tage).
+    </p>
+    <p>
+      Es handelt sich nicht um ein Cookie, es wird nichts an uns oder an Dritte
+      übertragen, und es findet keine Wiedererkennung Ihrer Person statt. Die
+      Speicherung ist erforderlich, um den von Ihnen ausdrücklich gewünschten
+      Dienst — die Darstellung dieser Seite — bereitzustellen (§ 25 Abs. 2 Nr. 2
+      TDDDG). Sie können den Eintrag jederzeit über die Einstellungen Ihres Browsers
+      löschen.
+    </p>
+
+    <h2>6. Kontaktaufnahme</h2>
+    <p>
+      Wenn Sie per E-Mail oder Telefon Kontakt aufnehmen, werden Ihre Angaben (Name,
+      E-Mail-Adresse, Telefonnummer, Inhalt Ihrer Nachricht) zur Bearbeitung der
+      Anfrage und für den Fall von Anschlussfragen gespeichert. Die Verarbeitung
+      erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO (Anbahnung eines Vertrags)
+      bzw. lit. f DSGVO (berechtigtes Interesse an der Kommunikation).
+    </p>
+    <p>
+      Die Daten werden gelöscht, sobald sie für den Zweck der Verarbeitung nicht mehr
+      erforderlich sind, spätestens nach Ablauf gesetzlicher Aufbewahrungsfristen.
+    </p>
+
+    <h2>7. Cookies und Tracking</h2>
+    <p>
+      Diese Website verwendet <strong>keine Cookies</strong> und <strong>kein
+      Tracking</strong>. Es werden keine Analyse-Dienste eingesetzt, keine Werbe-Pixel
+      geladen, keine Schriften, Karten, Videos oder Skripte von fremden Servern
+      nachgeladen und keine Daten an Dritte zu Werbe- oder Profilbildungszwecken
+      weitergegeben. Die einzige Speicherung auf Ihrem Gerät ist die unter Ziffer 5
+      beschriebene.
+    </p>
+
+    <h2>8. Ihre Rechte</h2>
+    <p>Sie haben gegenüber dem Verantwortlichen folgende Rechte:</p>
+    <ul>
+      <li>Auskunft über die zu Ihrer Person gespeicherten Daten (Art. 15 DSGVO)</li>
+      <li>Berichtigung unrichtiger Daten (Art. 16 DSGVO)</li>
+      <li>Löschung Ihrer Daten (Art. 17 DSGVO)</li>
+      <li>Einschränkung der Verarbeitung (Art. 18 DSGVO)</li>
+      <li>Widerspruch gegen die Verarbeitung (Art. 21 DSGVO)</li>
+      <li>Datenübertragbarkeit (Art. 20 DSGVO)</li>
+    </ul>
+    <p>
+      Für die Ausübung Ihrer Rechte genügt eine formlose Mitteilung an die oben
+      angegebenen Kontaktdaten.
+    </p>
+
+    <h2>9. Beschwerderecht</h2>
+    <p>
+      Sie haben das Recht, sich bei einer Aufsichtsbehörde über die Verarbeitung Ihrer
+      personenbezogenen Daten zu beschweren. Zuständig ist die Landesbeauftragte für
+      Datenschutz und Informationsfreiheit Nordrhein-Westfalen, Kavalleriestr. 2–4,
+      40213 Düsseldorf.
+    </p>
+
+    <hr>
+
+    <p class="stand">Stand: Oktober 2026</p>
+  </main>
+
+</div>
+
+</body>
+</html>
