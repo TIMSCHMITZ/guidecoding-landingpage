@@ -356,37 +356,37 @@
   <div data-sc-world>
 
     <div data-sc-segment data-sc-w="1.1" data-sc-linger="0.30" data-sc-waypoint="Der Zettel">
-      <img class="sc-world__poster" src="assets/p1.webp" alt="Betriebsbüro am Morgen, auf dem Tisch ein Telefon und ein Auftragsblock" decoding="async">
+      <img class="sc-world__poster" src="assets/p1.webp" data-sc-lite="assets/l1.webp" data-sc-lite-mobile="assets/l1-m.webp" alt="Betriebsbüro am Morgen, auf dem Tisch ein Telefon und ein Auftragsblock" decoding="async">
       <video data-sc-src="assets/leg1.mp4" data-sc-src-mobile="assets/leg1-m.mp4" muted playsinline></video>
     </div>
 
     <div data-sc-segment data-sc-w="1.2" data-sc-linger="0.15" data-sc-waypoint="Der Medienbruch">
-      <img class="sc-world__poster" src="assets/p2.webp" alt="Derselbe Auftrag auf Zettel, in einer Tabelle und in einem Nachrichtenverlauf" decoding="async">
+      <img class="sc-world__poster" src="assets/p2.webp" data-sc-lite="assets/l2.webp" data-sc-lite-mobile="assets/l2-m.webp" alt="Derselbe Auftrag auf Zettel, in einer Tabelle und in einem Nachrichtenverlauf" decoding="async">
       <video data-sc-src="assets/leg2.mp4" data-sc-src-mobile="assets/leg2-m.mp4" muted playsinline></video>
     </div>
 
     <div data-sc-segment data-sc-w="1.3" data-sc-linger="0.35" data-sc-waypoint="Freitag, 19 Uhr">
-      <img class="sc-world__poster" src="assets/p3.webp" alt="Dunkles Büro am Abend, ein einzelner Bildschirm leuchtet" decoding="async">
+      <img class="sc-world__poster" src="assets/p3.webp" data-sc-lite="assets/l3.webp" data-sc-lite-mobile="assets/l3-m.webp" alt="Dunkles Büro am Abend, ein einzelner Bildschirm leuchtet" decoding="async">
       <video data-sc-src="assets/leg3.mp4" data-sc-src-mobile="assets/leg3-m.mp4" muted playsinline></video>
     </div>
 
     <div data-sc-segment data-sc-w="1.2" data-sc-linger="0.25" data-sc-waypoint="Der Eigenbau">
-      <img class="sc-world__poster" src="assets/p4.webp" alt="Ein Bildschirm in der Werkstatt, auf dem ein selbstgebautes Werkzeug läuft" decoding="async">
+      <img class="sc-world__poster" src="assets/p4.webp" data-sc-lite="assets/l4.webp" data-sc-lite-mobile="assets/l4-m.webp" alt="Ein Bildschirm in der Werkstatt, auf dem ein selbstgebautes Werkzeug läuft" decoding="async">
       <video data-sc-src="assets/leg4.mp4" data-sc-src-mobile="assets/leg4-m.mp4" muted playsinline></video>
     </div>
 
     <div data-sc-segment data-sc-w="0.9" data-sc-linger="0.50" data-sc-waypoint="Die Lücke">
-      <img class="sc-world__poster" src="assets/p5.webp" alt="Ein leerer heller Tisch" decoding="async">
+      <img class="sc-world__poster" src="assets/p5.webp" data-sc-lite="assets/l5.webp" data-sc-lite-mobile="assets/l5-m.webp" alt="Ein leerer heller Tisch" decoding="async">
       <video data-sc-src="assets/leg5.mp4" data-sc-src-mobile="assets/leg5-m.mp4" muted playsinline></video>
     </div>
 
     <div data-sc-segment data-sc-w="2.4" data-sc-linger="0.40" data-sc-waypoint="Der Plan">
-      <img class="sc-world__poster" src="assets/p6.webp" alt="Heller Arbeitstisch, darauf ein Bildschirm mit einem Entwurf" decoding="async">
+      <img class="sc-world__poster" src="assets/p6.webp" data-sc-lite="assets/l6.webp" data-sc-lite-mobile="assets/l6-m.webp" alt="Heller Arbeitstisch, darauf ein Bildschirm mit einem Entwurf" decoding="async">
       <video data-sc-src="assets/leg6.mp4" data-sc-src-mobile="assets/leg6-m.mp4" muted playsinline></video>
     </div>
 
     <div data-sc-segment data-sc-w="1.4" data-sc-linger="0.35" data-sc-waypoint="Das Gate">
-      <img class="sc-world__poster" src="assets/p7.webp" alt="Heller Besprechungstisch bei Tageslicht" decoding="async">
+      <img class="sc-world__poster" src="assets/p7.webp" data-sc-lite="assets/l7.webp" data-sc-lite-mobile="assets/l7-m.webp" alt="Heller Besprechungstisch bei Tageslicht" decoding="async">
       <video data-sc-src="assets/leg7.mp4" data-sc-src-mobile="assets/leg7-m.mp4" muted playsinline></video>
     </div>
 
@@ -482,6 +482,8 @@
 
 <p class="ailabel">Bildwelt KI-generiert</p>
 
+<!-- Die Weiche entscheidet vor dem Motor, ob Clips geholt werden. Siehe weiche.js. -->
+<script src="weiche.js"></script>
 <script src="scrollcraft.js"></script>
 <script>
 (function () {
@@ -689,7 +691,10 @@
     });
   });
   var posterWache = setInterval(function () {
-    if (posterHalten()) clearInterval(posterWache);
+    /* In der leichten Fassung kommt kein Clip mehr: die Wache kann nie fertig
+       werden und soll nicht zwei Minuten lang alle 250 ms nachsehen. Ein Lauf
+       noch, damit die Lage stimmt, dann Schluss -- onScroll ruft weiter. */
+    if (posterHalten() || window.SCROLLCRAFT_LITE === true) clearInterval(posterWache);
   }, 250);
   setTimeout(function () { clearInterval(posterWache); }, 120000);
 
