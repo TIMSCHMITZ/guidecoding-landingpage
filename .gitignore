@@ -4,6 +4,7 @@
 
 !/.gitignore
 !/.nojekyll
+!/CNAME
 !/index.html
 !/impressum.html
 !/datenschutz.html
