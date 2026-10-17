@@ -134,6 +134,42 @@
    gated by a deadband and skipped while the decoder is still seeking. Without
    the smoothing a trackpad flick reads as a stutter, because wheel events do
    not arrive at a constant rate and a 1:1 write reproduces every gap in them.
+
+   ---------------------------------------------------------------------------
+   DIE BILDRATE DER CLIPS IST EINE OBERGRENZE (17. Oktober 2026)
+   ---------------------------------------------------------------------------
+   Ein gescrubbter Clip kann nie mehr verschiedene Bilder zeigen, als er hat.
+   Das ist keine Last- sondern eine Mengenfrage, und sie faellt ausgerechnet
+   beim LANGSAMEN Scrollen auf -- also genau dann, wenn jemand liest.
+
+   Die Rechnung, die vor jeder solchen Seite stehen muss:
+
+       neue Bilder je Sekunde = Scrolltempo (px/s) x Clipbilder / Scrollweg (px)
+
+   Diese Seite hatte am 16.10.2026 auf dem Telefon 61 Bilder je Etappe (12/s
+   bei 5,08 s) auf 0,9 bis 2,4 Fensterhoehen Scrollweg. Das sind rund 25 px
+   Scrollen je neuem Bild. Wer mit gemuetlichen 100 px/s liest, bekam also
+   VIER neue Bilder in der Sekunde auf einem Schirm, der 90 bis 120 mal in der
+   Sekunde auffrischt: das Bild stand eine Viertelsekunde still und sprang
+   dann um gemessene 3,5 px (im oberen Zehntel 6,4 px). Das ist das Ruckeln.
+   Beim schnellen Wischen verschwindet es, weil der Clip dann mehrere Bilder
+   je Auffrischung weiterrueckt.
+
+   Die Performance-Weiche konnte das nicht fangen: sie misst Last, und Last
+   war hier nie das Problem. Der Dekoder kam muehelos mit -- es war schlicht
+   nichts mehr da, was er haette zeigen koennen.
+
+   Behoben wurde es an der Quelle: 72 Bilder/s statt 12 auf dem Telefon, 48
+   bis 72 statt 24 auf dem Desktop, die Zwischenbilder bewegungskompensiert
+   gerechnet (ffmpeg minterpolate). Der Sprung sank im Mittel von 2,8-9,7 px
+   auf 0-1,7 px, die neuen Bilder je Sekunde stiegen beim Lesetempo um das
+   Sechsfache. Das kostete auf dem Telefon 7 Prozent mehr Bytes -- weniger,
+   als es klingt, weil die alten Handyclips schlecht kodiert waren; die
+   Bildqualitaet steigt dabei trotzdem (PSNR 25-38 dB auf 38-45 dB).
+
+   Wer die Clips neu rendert, muss diese Rechnung wieder aufmachen. Und das
+   Totband in tick() haengt an derselben Zahl: es muss unter einem Clipbild
+   bleiben.
    ========================================================================== */
 
 (function (global) {
@@ -1169,10 +1205,23 @@
       // angefordert. Der Unterschied in der Bildrate ist dann genau der Anteil,
       // den das Video am Ruckeln hat. Siehe diag.js.
       if (!scrubAn) { requestAnimationFrame(tick); return; }
-      // Deadband. A phone decoder cannot service a seek every frame, so asking
-      // for one costs more than it shows; 20ms of clip is under a frame of
-      // footage anyway.
-      var eps = isMobile() ? 0.02 : 0.008;
+      // Totband: unter einer Mindestaenderung wird gar nicht erst gesprungen.
+      //
+      // Die einzige harte Bedingung an diese Zahl ist, dass sie KLEINER als
+      // ein Clipbild bleibt. Wer weiter springt, als ein Bild lang ist, kann
+      // Bilder ueberspringen -- und genau die Bilder sind das Knappe, nicht
+      // die Rechenzeit (siehe DIE BILDRATE DER CLIPS IST EINE OBERGRENZE).
+      // Umgekehrt bringt ein viel kleineres Totband nichts: es fordert
+      // mehrere Spruenge an, die alle im selben Clipbild landen, und bezahlt
+      // sie mit Dekoderarbeit.
+      //
+      // Die Clips dieser Seite laufen seit dem 17.10.2026 mit 72 Bildern/s
+      // (Telefon) bzw. 48 bis 72 (Desktop). Das kuerzeste Clipbild ist damit
+      // 13,9 ms lang. Die 20 ms, die hier fuer die alten 12-Bilder-Clips
+      // standen, waeren jetzt laenger als ein Bild und wuerden Bilder
+      // ueberspringen. 12 ms sind knapp neun Zehntel eines Bildes bei 72/s:
+      // nichts faellt aus, und es wird kein Sprung doppelt angefordert.
+      var eps = isMobile() ? 0.012 : 0.008;
       for (var i = 0; i < playheads.length; i++) {
         var V = playheads[i];
         if (!V.ready) continue;

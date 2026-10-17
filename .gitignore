@@ -13,6 +13,9 @@
 !/scrollcraft.js
 !/scrollcraft.css
 !/weiche.js
+# Das Baurezept der Etappenclips. Gehoert versioniert: in seinem Kopf steht,
+# warum die Clips 72 Bilder/s haben und was passiert, wenn jemand das senkt.
+!/bau-clips.sh
 
 !/assets/
 !/fonts/

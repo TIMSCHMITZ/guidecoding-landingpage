@@ -34,6 +34,7 @@ python3 -m http.server 4500
 | `index.html` | die Seite. Eigenes Markup, die Engine wird nur eingebunden |
 | `scrollcraft.js` / `.css` | die Scroll-Engine. Nicht projektbezogen aendern |
 | `assets/` | die sieben Etappen als mp4, je eine Fassung fuer Rechner und Telefon, plus Poster |
+| `bau-clips.sh` | baut die Etappenclips aus den Quellen in `out/` neu |
 | `img/` | Portraits |
 | `demo/entwurf.html` | der bedienbare Beispielentwurf |
 | `fonts/` | Montserrat und Source Sans 3, selbst gehostet |
